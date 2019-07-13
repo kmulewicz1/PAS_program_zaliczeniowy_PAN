@@ -31,16 +31,7 @@ public class ClientHandler implements Runnable{
         this.listOfCard = new LinkedList<>();
 
     }
-    public void sendCards() throws IOException {
-        String cardsToSend = "";
-        for (Card c : listOfCard
-        ) {
-            cardsToSend += c.toString();
 
-        }
-        this.Output.writeUTF("your's cards");
-        this.Output.writeUTF(cardsToSend);
-    }
     public void inThread() {
 
             String buf;
@@ -68,7 +59,7 @@ public class ClientHandler implements Runnable{
                         while ((!Server.cardStack.peek().getValue().equals("9")
                                 || !Server.cardStack.peek().getSuit().equals("heart"))
                                 && iterator_of_stack < 3) {
-                            this.listOfCard.add(Server.cardStack.pop());
+                            listOfCard.add(Server.cardStack.pop());
                             iterator_of_stack++;
                         }//while
                         sendCards();
@@ -146,7 +137,7 @@ public class ClientHandler implements Runnable{
                                             Server.cardStack.push(c);
                                         }
                                     }//else stackEmpty
-                                    cards_from_client.clear();
+                                    //cards_from_client.clear();
                                     nextRound();
                                     Output.writeUTF("OK, wait for next round");
                                 } //else checkIdentical()
@@ -156,12 +147,13 @@ public class ClientHandler implements Runnable{
                         int iterator_forEach=0;
                         for (Card c: cards_from_client
                         ) {
-                            listOfCard.remove(c);
+                            listOfCard.remove(findIndexInList(c));
                             if(cards_from_client.size()-1==iterator_forEach)
                                 Server.cardStack.push(c);
                             iterator_forEach++;
 
                         }
+                        cards_from_client.clear();
                         if(listOfCard.isEmpty())
                         {
                             isWinner=true;
@@ -177,7 +169,8 @@ public class ClientHandler implements Runnable{
                                 iterator_forEach_winners++;
                             }//forEachWinner
                             if(how_many_winners==3)
-                                Server.vector.get(looser).Output.writeUTF("you loose");                      }
+                                Server.vector.get(looser).Output.writeUTF("you loose");
+                        }
                         break;//send
                     default:
                     {
@@ -226,6 +219,16 @@ public class ClientHandler implements Runnable{
 
     }//findInList
 
+    public int findIndexInList(Card card)
+    {
+        for(int i=0;i<listOfCard.size();i++)
+        {
+            if(listOfCard.get(i).getValue().equals(card.getValue())&&listOfCard.get(i).getSuit().equals(card.getSuit()))
+                return i;
+        }
+            return -1;
+    }
+
     public  static boolean checkIdentical(LinkedList<Card> l)
     {
          Map<String,Boolean> IdenticalCheckMap = new HashMap<>();
@@ -259,6 +262,17 @@ public class ClientHandler implements Runnable{
         }
         return true;
     }//checkValueOfCard
+
+    public void sendCards() throws IOException {
+        String cardsToSend = "";
+        for (Card c : listOfCard
+        ) {
+            cardsToSend += c.toString();
+
+        }
+        this.Output.writeUTF("your's cards");
+        this.Output.writeUTF(cardsToSend);
+    }//sendCards
 
 
     @Override
