@@ -28,6 +28,6 @@ public class Card
 
     public String toString()
     {
-        return this.getValue()+" "+this.getSuit()+" ";
+        return this.getValue()+" "+this.getSuit()+", ";
     }
 }

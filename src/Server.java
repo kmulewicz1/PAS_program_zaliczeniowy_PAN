@@ -60,8 +60,8 @@ public class Server {
             else if(i==4) value="king";
             else if(i==5) value="ace";
 
-            arrTab[4*i]=new Card(value,"diamond");
-            arrTab[4*i+1]=new Card(value,"heart");
+            arrTab[4*i]=new Card(value,"heart");
+            arrTab[4*i+1]=new Card(value,"diamond");
             arrTab[4*i+2]=new Card(value,"club");
             arrTab[4*i+3]=new Card(value,"spade");
         }
@@ -70,6 +70,8 @@ public class Server {
 
 
         //shuffling cards
+        /*
+
         Random rgen = new Random();
 
         for (int i=0; i<arrTab.length; i++) {
@@ -78,6 +80,8 @@ public class Server {
             arrTab[i] = arrTab[randomPosition];
             arrTab[randomPosition] = temp;
         }
+
+         */
 
         while(true) {
 

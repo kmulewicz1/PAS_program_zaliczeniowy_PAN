@@ -31,15 +31,27 @@ public class ClientHandler implements Runnable{
         this.listOfCard = new LinkedList<>();
 
     }
+    public void sendCards() throws IOException {
+        String cardsToSend = "";
+        for (Card c : listOfCard
+        ) {
+            cardsToSend += c.toString();
+
+        }
+        this.Output.writeUTF("your's cards");
+        this.Output.writeUTF(cardsToSend);
+    }
     public void inThread() {
 
             String buf;
-            if(!Server.cardStack.empty())
-            System.out.println(Server.cardStack.peek().toString());
+            //if(!Server.cardStack.empty())
+            //System.out.println(Server.cardStack.peek().toString());
             //System.out.println("heyyyy"+Server.vector.indexOf(this));
             try {
                 if(!this.isReady)
                     Output.writeUTF("Welcome in PAN game");
+
+
                 buf = Input.readUTF();
                 //System.out.println(buf);
                 String buf_switch;
@@ -59,14 +71,7 @@ public class ClientHandler implements Runnable{
                             this.listOfCard.add(Server.cardStack.pop());
                             iterator_of_stack++;
                         }//while
-                        String cardsToSend = "";
-                        for (Card c : listOfCard
-                        ) {
-                            cardsToSend += c.toString();
-
-                        }
-                        this.Output.writeUTF("it's your card");
-                        this.Output.writeUTF(cardsToSend);
+                        sendCards();
                         nextRound();
                         break;
                     case "send":
@@ -200,7 +205,9 @@ public class ClientHandler implements Runnable{
                 if (index == 4) index = 0;
                 if (!Server.vector.get(index).isWinner) {
                     Server.vector.get(index).Output.writeUTF("your round");
+                    Server.vector.get(index).Output.writeUTF("Actual card is: "+Server.cardStack.peek().toString());
                     Server.vector.get(index).myRound = true;
+                    Server.vector.get(index).sendCards();
                     break;
                 }//if
                 index++;

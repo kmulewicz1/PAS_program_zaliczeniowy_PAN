@@ -63,7 +63,6 @@ public class Client {
                                             }
                                             else {
                                                 Output.writeUTF(msg);
-                                                System.out.println("i sent");
                                             }
                                         break;
                                     case "wait":
