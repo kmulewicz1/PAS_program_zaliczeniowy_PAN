@@ -29,6 +29,7 @@ public class Server {
 
     public static void main(String[] args) throws IOException {
 
+
         //init secure socket
         System.setProperty("javax.net.ssl.keyStore","za.store");
         System.setProperty("javax.net.ssl.keyStorePassword","qwerty123");

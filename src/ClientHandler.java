@@ -55,6 +55,11 @@ public class ClientHandler implements Runnable{
                         break;
 
                     case "wait":
+
+
+                        //System.out.println(Server.cardStack);
+
+
                         int iterator_of_stack = 0;
                         while ((!Server.cardStack.peek().getValue().equals("9")
                                 || !Server.cardStack.peek().getSuit().equals("heart"))
@@ -117,26 +122,27 @@ public class ClientHandler implements Runnable{
                                     return;
                                 }
                                 else {
-                                    if (!Server.cardStack.empty()) {
-                                        for (Card c : cards_from_client
-                                        ) {
-                                            if (Server.ValueOfCardMAP.get(c.getValue())
-                                                    >=
-                                                    Server.ValueOfCardMAP.get(Server.cardStack.peek().getValue())) {
-                                                Server.cardStack.push(c);
-                                            } else {
-                                                Output.writeUTF("this cards has too small value");
-                                                return;
-                                            }//else
 
-                                        }//forEach
-                                    }//!Server.cardStack.empty()
-                                    else {
+                                    //send to stack if stack is empty
+                                    if (!Server.cardStack.empty()||(Server.ValueOfCardMAP.get(cards_from_client.getFirst().getValue())
+                                            >=
+                                            Server.ValueOfCardMAP.get(Server.cardStack.peek().getValue()))) {
                                         for (Card c : cards_from_client
                                         ) {
                                             Server.cardStack.push(c);
                                         }
+
+
+                                    }//!Server.cardStack.empty()
+
+                                    //send to stack if stack isn't empty
+                                    else {
+                                        Output.writeUTF("this cards has too small value");
+                                        return;
+
                                     }//else stackEmpty
+
+
                                     //cards_from_client.clear();
                                     nextRound();
                                     Output.writeUTF("OK, wait for next round");
@@ -144,16 +150,9 @@ public class ClientHandler implements Runnable{
                             } //else checkValueOfCards()
                         }//else
 
-                        int iterator_forEach=0;
-                        for (Card c: cards_from_client
-                        ) {
-                            listOfCard.remove(findIndexInList(c));
-                            if(cards_from_client.size()-1==iterator_forEach)
-                                Server.cardStack.push(c);
-                            iterator_forEach++;
-
-                        }
                         cards_from_client.clear();
+
+
                         if(listOfCard.isEmpty())
                         {
                             isWinner=true;
