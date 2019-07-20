@@ -11,6 +11,8 @@ public class Client {
         Scanner sc= new Scanner(System.in);
         final boolean[] IsMyRound = {false};
         final boolean[] Is9Heart = {false};
+        final boolean[] IsEnd = {false};
+
 
         //SSL socket init
         System.setProperty("javax.net.ssl.trustStore","za.store");
@@ -48,6 +50,7 @@ public class Client {
                                 switch (msg_tmp) {
                                     case "quit":
                                         Output.writeUTF(msg);
+
                                         break;
                                     case "send":
                                         if (msg.length() < 6)
@@ -75,7 +78,8 @@ public class Client {
                                     default:
                                         System.out.println("invalid message");
                                         break;
-                                }
+                                }//switch
+
                             }//else
                         }//else
                     } catch (IOException e) {
@@ -90,41 +94,59 @@ public class Client {
             @Override
             public void run() {
                 while (true) {
+
                     try {
                         // read the message sent to this client
-                        String msg = Input.readUTF();
-                        System.out.println(msg);
-                        switch (msg)
-                        {
-                            case "your round":
-                                IsMyRound[0] =true;
-                                System.out.println("Write 'send' a cards what do you want to put," +
-                                        " separate them with a comma or enter 'wait' ");
-                                break;
-                            case "9heart":
-                                IsMyRound[0] =true;
-                                Is9Heart[0] =true;
-                                System.out.println("Write 'send' a cards what do you want to put," +
-                                        " separate them with a comma, you must put the card" +
-                                        "because you have 9heart");
-                                break;
-                            case "it's your card":
-                                IsMyRound[0]=false;
-                                break;
-                            case "game end":
-                                System.out.println("one player left");
-                                socket.close();
-                            case "Welcome in PAN game":
-                                System.out.println("You must wait for all players");
-                                break;
-                            case "OK, wait for next round":
-                                Is9Heart[0]=false;
-                                IsMyRound[0]=false;
-                                break;
+                        if(!IsEnd[0]) {
+                            String msg = Input.readUTF();
+                            System.out.println(msg);
+                            switch (msg) {
+                                case "your round":
+                                    IsMyRound[0] = true;
+                                    System.out.println("Write 'send' a cards what do you want to put," +
+                                            " separate them with a comma or enter 'wait' ");
+                                    break;
+                                case "9heart":
+                                    IsMyRound[0] = true;
+                                    Is9Heart[0] = true;
+                                    System.out.println("Write 'send' a cards what do you want to put," +
+                                            " separate them with a comma, you must put the card" +
+                                            "because you have 9heart");
+                                    break;
+                                case "it's your card: ":
+                                    IsMyRound[0] = false;
+                                    break;
+                                case "game end":
+                                    System.out.println("one player left");
+                                    System.exit(0);
+                                    IsEnd[0] = true;
+
+
+                                case "Welcome in PAN game":
+                                    System.out.println("You must wait for all players");
+                                    break;
+                                case "OK, wait for next round":
+                                    Is9Heart[0] = false;
+                                    IsMyRound[0] = false;
+                                    break;
+                                case "you winner":
+                                        IsEnd[0]=true;
+                                    break;
+                                case "you looser":
+                                    IsEnd[0]=true;
+                                    Output.writeUTF("I'm looser");
+                                    System.exit(0);
+                                    break;
                             /*default:
                                 System.out.println("try again"); */
-                        }//switch
-                    } catch (IOException e) {
+                            }//switch
+                        }//IsEnd
+                        else {
+                            return;
+                        }
+
+                    }//try
+                        catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
