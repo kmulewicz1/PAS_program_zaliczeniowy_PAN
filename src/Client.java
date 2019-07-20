@@ -36,6 +36,8 @@ public class Client {
                     // read the message to deliver.
                     String msg = sc.nextLine();
 
+
+
                     try
                     {
                         if(!IsMyRound[0]&&!Is9Heart[0])
@@ -120,7 +122,12 @@ public class Client {
                                     System.out.println("one player left");
                                     System.exit(0);
                                     IsEnd[0] = true;
-
+                                case "end":
+                                    System.exit(0);
+                                    IsEnd[0] = true;
+                                case "we have a looser":
+                                    System.exit(0);
+                                    IsEnd[0] = true;
 
                                 case "Welcome in PAN game":
                                     System.out.println("You must wait for all players");
@@ -129,14 +136,14 @@ public class Client {
                                     Is9Heart[0] = false;
                                     IsMyRound[0] = false;
                                     break;
-                                case "you winner":
+                                /*case "you winner":
                                         IsEnd[0]=true;
                                     break;
                                 case "you looser":
-                                    IsEnd[0]=true;
+                                    //IsEnd[0]=true;
                                     Output.writeUTF("I'm looser");
-                                    System.exit(0);
-                                    break;
+                                    //System.exit(0);
+                                    break; */
                             /*default:
                                 System.out.println("try again"); */
                             }//switch

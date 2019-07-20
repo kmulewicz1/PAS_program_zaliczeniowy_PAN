@@ -50,10 +50,6 @@ public class ClientHandler implements Runnable{
                     buf_switch = buf.substring(0, 4);
 
                     switch (buf_switch) {
-                        case "I'm looser":
-                            sentToAll("game end");
-                            this.isEnd=true;
-                            System.exit(0);
 
                         case "quit":
                             sentToAll("game end");
@@ -165,8 +161,19 @@ public class ClientHandler implements Runnable{
                                     iterator_forEach_winners++;
                                 }//forEachWinner
                                 if (how_many_winners == 3) {
-                                    Server.vector.get(looser).Output.writeUTF("you loose");
-                                }
+                                    Server.vector.get(looser).Output.writeUTF("you looser");
+
+                                    sentToAll("end");
+                                    this.isEnd = true;
+                                    System.exit(0);
+                                    this.Output.close();
+                                    this.Input.close();
+                                    this.s.close();
+
+
+
+
+                                }//if
                             }
                             break;//send
                         default: {
