@@ -81,7 +81,7 @@ public class ClientHandler implements Runnable{
                             if (sT.countTokens() == 2
                                     || sT.countTokens() == 0
                                     || sT.countTokens() > 4
-                                    || (sT.countTokens() == 3 && NineHeart)) {
+                                    || (sT.countTokens() == 3)) {
                                 //System.out.println(sT.countTokens());
                                 Output.writeUTF("something is wrong, try again");
                             } else {
@@ -91,19 +91,19 @@ public class ClientHandler implements Runnable{
                                         Card tmpCard = new Card(st1.nextToken(), st1.nextToken());
 
                                         if (!Server.findInArray(Server.arrTab, tmpCard)) {
-                                            Output.writeUTF("this is no card");
+                                            Output.writeUTF("this is not a card");
                                             return false;
-                                        }//if Server.findInArray(
+                                        }//if Server.findInArray(j
                                         else {
                                             if (findInList(listOfCard, tmpCard))
                                                 cards_from_client.add(tmpCard);
                                             else {
-                                                Output.writeUTF("You haven't this card");
+                                                Output.writeUTF("You don't have this card");
                                                 return false;
                                             }//else find card in player's cards
                                         }//else Server.findInArray
                                     } else {
-                                        Output.writeUTF("Name_Card_Error");
+                                        Output.writeUTF("Name Card Error");
                                         return false;
                                     }//else
                                 }//while
@@ -169,10 +169,6 @@ public class ClientHandler implements Runnable{
                                     this.Output.close();
                                     this.Input.close();
                                     this.s.close();
-
-
-
-
                                 }//if
                             }
                             break;//send

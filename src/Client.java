@@ -35,9 +35,6 @@ public class Client {
 
                     // read the message to deliver.
                     String msg = sc.nextLine();
-
-
-
                     try
                     {
                         if(!IsMyRound[0]&&!Is9Heart[0])

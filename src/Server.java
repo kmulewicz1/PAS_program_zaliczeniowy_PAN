@@ -71,7 +71,7 @@ public class Server {
 
 
         //shuffling cards
-        /*
+
 
         Random rgen = new Random();
 
@@ -82,7 +82,7 @@ public class Server {
             arrTab[randomPosition] = temp;
         }
 
-         */
+
 
         while(true) {
 
