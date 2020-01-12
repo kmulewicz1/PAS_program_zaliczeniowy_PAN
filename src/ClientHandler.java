@@ -9,18 +9,18 @@ import java.util.StringTokenizer;
 public class ClientHandler implements Runnable{
 
 
-    DataInputStream Input;
+    private DataInputStream Input;
     DataOutputStream Output;
-    SSLSocket s;
+    private SSLSocket s;
     boolean isReady;
-    boolean myRound;
-    boolean isWinner;
+    private boolean myRound;
+    private boolean isWinner;
     boolean NineHeart;
-    boolean isEnd;
+    private boolean isEnd;
     LinkedList <Card> listOfCard;
 
 
-    public ClientHandler( DataInputStream input, DataOutputStream output, SSLSocket s) {
+    ClientHandler(DataInputStream input, DataOutputStream output, SSLSocket s) {
         this.Input = input;
         this.Output = output;
         this.s = s;
@@ -33,19 +33,15 @@ public class ClientHandler implements Runnable{
 
     }
 
-    public boolean inThread() {
+    private boolean inThread() {
 
             String buf;
-            //if(!Server.cardStack.empty())
-            //System.out.println(Server.cardStack.peek().toString());
-            //System.out.println("heyyyy"+Server.vector.indexOf(this));
             try {
                 if(!this.isReady)
                     Output.writeUTF("Welcome in PAN game");
 
                 if(!this.isEnd) {
                     buf = Input.readUTF();
-                    //System.out.println(buf);
                     String buf_switch;
                     buf_switch = buf.substring(0, 4);
 
@@ -82,7 +78,6 @@ public class ClientHandler implements Runnable{
                                     || sT.countTokens() == 0
                                     || sT.countTokens() > 4
                                     || (sT.countTokens() == 3)) {
-                                //System.out.println(sT.countTokens());
                                 Output.writeUTF("something is wrong, try again");
                             } else {
                                 while (sT.hasMoreTokens()) {
@@ -193,12 +188,12 @@ public class ClientHandler implements Runnable{
     }
 
     //method to send msg to all player
-    public void sentToAll(String msg) throws IOException {
+    private void sentToAll(String msg) throws IOException {
         for (ClientHandler ch : Server.vector) {
             ch.Output.writeUTF(msg);
         }//for
     }//sentToAll
-     public void nextRound() throws IOException
+     private void nextRound() throws IOException
         {
             this.NineHeart=false;
             this.myRound=false;
@@ -217,7 +212,7 @@ public class ClientHandler implements Runnable{
         }//nextRound
 
     //find Card in LinkedList
-    public static boolean findInList(LinkedList<Card>lc, Card card)
+    private static boolean findInList(LinkedList<Card> lc, Card card)
     {
         for(int i=0;i<lc.size();i++)
         {

@@ -7,21 +7,16 @@ import java.util.Scanner;
 public class Client {
     public static void main(String[] args) throws IOException {
 
-
         Scanner sc= new Scanner(System.in);
         final boolean[] IsMyRound = {false};
         final boolean[] Is9Heart = {false};
         final boolean[] IsEnd = {false};
-
-
-        //SSL socket init
         System.setProperty("javax.net.ssl.trustStore","za.store");
         SSLSocketFactory sslSocketFactory =
                 (SSLSocketFactory)SSLSocketFactory.getDefault();
         SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket("localhost", 9000);
         socket.startHandshake();
 
-        //input&output init
         DataOutputStream Output = new DataOutputStream(socket.getOutputStream());
         DataInputStream Input = new DataInputStream(socket.getInputStream());
 
@@ -93,7 +88,6 @@ public class Client {
             @Override
             public void run() {
                 while (true) {
-
                     try {
                         // read the message sent to this client
                         if(!IsEnd[0]) {
@@ -133,16 +127,7 @@ public class Client {
                                     Is9Heart[0] = false;
                                     IsMyRound[0] = false;
                                     break;
-                                /*case "you winner":
-                                        IsEnd[0]=true;
-                                    break;
-                                case "you looser":
-                                    //IsEnd[0]=true;
-                                    Output.writeUTF("I'm looser");
-                                    //System.exit(0);
-                                    break; */
-                            /*default:
-                                System.out.println("try again"); */
+
                             }//switch
                         }//IsEnd
                         else {
