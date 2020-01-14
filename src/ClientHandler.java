@@ -1,23 +1,71 @@
 import javax.net.ssl.SSLSocket;
 import java.io.*;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 
 public class ClientHandler implements Runnable{
 
-
     private DataInputStream Input;
-    DataOutputStream Output;
     private SSLSocket s;
-    boolean isReady;
     private boolean myRound;
     private boolean isWinner;
-    boolean NineHeart;
     private boolean isEnd;
+    boolean isReady;
+    boolean NineHeart;
     LinkedList <Card> listOfCard;
+    DataOutputStream Output;
+
+    private void quitGame() throws IOException {
+        sentToAll("game end");
+        this.isEnd = true;
+        System.exit(0);
+        this.Output.close();
+        this.Input.close();
+        this.s.close();
+    }
+    private void waitGame() throws IOException{
+        int iterator_of_stack = 0;
+        while ((!Server.cardStack.peek().getValue().equals("9")
+                || !Server.cardStack.peek().getSuit().equals("heart"))
+                && iterator_of_stack < 3) {
+            listOfCard.add(Server.cardStack.pop());
+            iterator_of_stack++;
+        }//while
+        sendCards();
+        nextRound();
+    }
+
+    private void checkIfWeHaveWinner() throws IOException{
+        isWinner = true;
+        Output.writeUTF("you winner");
+        int how_many_winners = 0;
+        int iterator_forEach_winners = 0;
+        int looser = 0;
+        for (ClientHandler cl : Server.vector
+        ) {
+            if (cl.isWinner)
+                how_many_winners++;
+            else {
+                looser = iterator_forEach_winners;
+            }
+            iterator_forEach_winners++;
+        }//forEachWinner
+        if (how_many_winners == 3) {
+            Server.vector.get(looser).Output.writeUTF("you looser");
+            sentToAll("end");
+            this.isEnd = true;
+            System.exit(0);
+            this.Output.close();
+            this.Input.close();
+            this.s.close();
+        }//if
+    }
+    private static boolean checkST( StringTokenizer sT) {
+        return sT.countTokens() == 0
+                || sT.countTokens() == 2
+                || sT.countTokens() == 4
+                || sT.countTokens() > 4;
+    }
 
 
     ClientHandler(DataInputStream input, DataOutputStream output, SSLSocket s) {
@@ -33,138 +81,93 @@ public class ClientHandler implements Runnable{
 
     }
 
-    private boolean inThread() {
+    private boolean getCards(StringTokenizer sT, LinkedList<Card> cardsFromClient)  throws IOException{
+        while (sT.hasMoreTokens()) {
+            StringTokenizer st1 = new StringTokenizer(sT.nextToken());
+            if (st1.countTokens() == 2) {
+                Card tmpCard = new Card(st1.nextToken(), st1.nextToken());
 
+                if (!Server.findInArray(Server.arrTab, tmpCard)) {
+                    Output.writeUTF("this is not a card");
+                    return false;
+                }//if Server.findInArray(j
+                else {
+                    if (findInList(listOfCard, tmpCard))
+                        cardsFromClient.add(tmpCard);
+                    else {
+                        Output.writeUTF("You don't have this card");
+                        return false;
+                    }//else find card in player's cards
+                }//else Server.findInArray
+            } else {
+                Output.writeUTF("Name Card Error");
+                return false;
+            }//else
+        }//while
+        return true;
+    }
+    private boolean checkIfClientsCardsHasGoodValue(LinkedList <Card> cardsFromClient) {
+       return  Server.cardStack.empty() ||
+                (Server.ValueOfCardMAP.get(cardsFromClient.getFirst().getValue())
+                >=
+                Server.ValueOfCardMAP.get(Server.cardStack.peek().getValue()));
+    }
+
+    private boolean inThread() {
             String buf;
             try {
-                if(!this.isReady)
+                if(!this.isReady) {
                     Output.writeUTF("Welcome in PAN game");
-
+                }
                 if(!this.isEnd) {
                     buf = Input.readUTF();
                     String buf_switch;
                     buf_switch = buf.substring(0, 4);
-
                     switch (buf_switch) {
-
                         case "quit":
-                            sentToAll("game end");
-                            this.isEnd = true;
-                            System.exit(0);
-                            this.Output.close();
-                            this.Input.close();
-                            this.s.close();
-
+                            this.quitGame();
                             break;
-
                         case "wait":
-
-                            int iterator_of_stack = 0;
-                            while ((!Server.cardStack.peek().getValue().equals("9")
-                                    || !Server.cardStack.peek().getSuit().equals("heart"))
-                                    && iterator_of_stack < 3) {
-                                listOfCard.add(Server.cardStack.pop());
-                                iterator_of_stack++;
-                            }//while
-                            sendCards();
-                            nextRound();
+                            this.waitGame();
                             break;
                         case "send":
-                            LinkedList<Card> cards_from_client = new LinkedList<>();
+                            LinkedList<Card> cardsFromClient = new LinkedList<>();
                             String CardsToSend_tmp = buf.substring(5);
                             String CardsToSend = CardsToSend_tmp.replaceAll(", ", ",");
                             StringTokenizer sT = new StringTokenizer(CardsToSend, ",", false);
-                            if (sT.countTokens() == 2
-                                    || sT.countTokens() == 0
-                                    || sT.countTokens() > 4
-                                    || (sT.countTokens() == 3)) {
+                            if (checkST(sT)) {
                                 Output.writeUTF("something is wrong, try again");
                             } else {
-                                while (sT.hasMoreTokens()) {
-                                    StringTokenizer st1 = new StringTokenizer(sT.nextToken());
-                                    if (st1.countTokens() == 2) {
-                                        Card tmpCard = new Card(st1.nextToken(), st1.nextToken());
-
-                                        if (!Server.findInArray(Server.arrTab, tmpCard)) {
-                                            Output.writeUTF("this is not a card");
-                                            return false;
-                                        }//if Server.findInArray(j
-                                        else {
-                                            if (findInList(listOfCard, tmpCard))
-                                                cards_from_client.add(tmpCard);
-                                            else {
-                                                Output.writeUTF("You don't have this card");
-                                                return false;
-                                            }//else find card in player's cards
-                                        }//else Server.findInArray
-                                    } else {
-                                        Output.writeUTF("Name Card Error");
-                                        return false;
-                                    }//else
-                                }//while
-                                if (!checkValueOfCards(cards_from_client)) {
+                                if(!this.getCards(sT, cardsFromClient)) {
+                                    return false;
+                                }
+                                if (!checkValueOfCards(cardsFromClient)) {
                                     Output.writeUTF("you try to send cards with another value");
                                     return false;
                                 } else {
-                                    if (!checkIdentical(cards_from_client)) {
+                                    if (!checkIdentical(cardsFromClient)) {
                                         Output.writeUTF("Identical cards");
                                         return false;
                                     } else {
-
-                                        //send to stack if stack is empty
-                                        if (Server.cardStack.empty() || (Server.ValueOfCardMAP.get(cards_from_client.getFirst().getValue())
-                                                >=
-                                                Server.ValueOfCardMAP.get(Server.cardStack.peek().getValue()))) {
-                                            for (Card c : cards_from_client
+                                        if (checkIfClientsCardsHasGoodValue(cardsFromClient)) {
+                                            for (Card c : cardsFromClient
                                             ) {
                                                 Server.cardStack.push(c);
                                                 listOfCard.remove(findIndexInList(c));
                                             }
                                         }//!Server.cardStack.empty()
-
-                                        //send to stack if stack isn't empty
                                         else {
                                             Output.writeUTF("this cards has too small value");
                                             return false;
-
                                         }//else stackEmpty
-
-
-                                        //cards_from_client.clear();
                                         nextRound();
                                         Output.writeUTF("OK, wait for next round");
                                     } //else checkIdentical()
                                 } //else checkValueOfCards()
                             }//else
-
-                            cards_from_client.clear();
-
-
+                            cardsFromClient.clear();
                             if (listOfCard.isEmpty()) {
-                                isWinner = true;
-                                Output.writeUTF("you winner");
-                                int how_many_winners = 0;
-                                int iterator_forEach_winners = 0;
-                                int looser = 0;
-                                for (ClientHandler cl : Server.vector
-                                ) {
-                                    if (cl.isWinner)
-                                        how_many_winners++;
-                                    else {
-                                        looser = iterator_forEach_winners;
-                                    }
-                                    iterator_forEach_winners++;
-                                }//forEachWinner
-                                if (how_many_winners == 3) {
-                                    Server.vector.get(looser).Output.writeUTF("you looser");
-
-                                    sentToAll("end");
-                                    this.isEnd = true;
-                                    System.exit(0);
-                                    this.Output.close();
-                                    this.Input.close();
-                                    this.s.close();
-                                }//if
+                                this.checkIfWeHaveWinner();
                             }
                             break;//send
                         default: {
@@ -172,22 +175,18 @@ public class ClientHandler implements Runnable{
                         }//default
                     }//switch
                 }//if
-                else
-                {
+                else  {
                     this.Input.close();
                     this.Output.close();
                     this.s.close();
                     return true;
                 }
-
             } //try
             catch (IOException e) {
                 e.printStackTrace();
-            }//catch
+            }
         return false;
     }
-
-    //method to send msg to all player
     private void sentToAll(String msg) throws IOException {
         for (ClientHandler ch : Server.vector) {
             ch.Output.writeUTF(msg);
@@ -211,7 +210,6 @@ public class ClientHandler implements Runnable{
             }//for
         }//nextRound
 
-    //find Card in LinkedList
     private static boolean findInList(LinkedList<Card> lc, Card card)
     {
         for(int i=0;i<lc.size();i++)
@@ -223,7 +221,7 @@ public class ClientHandler implements Runnable{
 
     }//findInList
 
-    public int findIndexInList(Card card)
+    private int findIndexInList(Card card)
     {
         for(int i=0;i<listOfCard.size();i++)
         {
@@ -233,7 +231,7 @@ public class ClientHandler implements Runnable{
             return -1;
     }
 
-    public  static boolean checkIdentical(LinkedList<Card> l)
+    private static boolean checkIdentical(LinkedList<Card> l)
     {
          Map<String,Boolean> IdenticalCheckMap = new HashMap<>();
         IdenticalCheckMap.put("diamond",false);
@@ -245,13 +243,12 @@ public class ClientHandler implements Runnable{
             if(!IdenticalCheckMap.get(c.getSuit()))
                 IdenticalCheckMap.replace(c.getSuit(),false,true);
             else return false;
-
         }//forEach
         return true;
     }//checkIdentical
 
 
-    public static boolean checkValueOfCards(LinkedList<Card> l)
+    private static boolean checkValueOfCards(LinkedList<Card> l)
     {
         if(l.size()==1)
             return true;
@@ -267,7 +264,7 @@ public class ClientHandler implements Runnable{
         return true;
     }//checkValueOfCard
 
-    public void sendCards() throws IOException {
+    private void sendCards() throws IOException {
         String cardsToSend = "";
         for (Card c : listOfCard
         ) {
@@ -277,16 +274,11 @@ public class ClientHandler implements Runnable{
         this.Output.writeUTF("your's cards");
         this.Output.writeUTF(cardsToSend);
     }//sendCards
-
-
     @Override
     public void run() {
-        while (true)
-        {
+        while (true) {
             if(inThread())
               return;
-        }//while(true)
-
+        }
     }//run
-
 }//class

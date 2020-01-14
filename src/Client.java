@@ -20,14 +20,11 @@ public class Client {
         DataOutputStream Output = new DataOutputStream(socket.getOutputStream());
         DataInputStream Input = new DataInputStream(socket.getInputStream());
 
-
         // sendMessage thread
-        Thread sendMessage = new Thread(new Runnable()
-        {
+        Thread sendMessage = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (true) {
-
                     // read the message to deliver.
                     String msg = sc.nextLine();
                     try
@@ -67,7 +64,6 @@ public class Client {
                                             System.out.println("you must send cards");
                                         else
                                             Output.writeUTF(msg);
-
                                         break;
                                     default:
                                         System.out.println("invalid message");
@@ -127,7 +123,6 @@ public class Client {
                                     Is9Heart[0] = false;
                                     IsMyRound[0] = false;
                                     break;
-
                             }//switch
                         }//IsEnd
                         else {
