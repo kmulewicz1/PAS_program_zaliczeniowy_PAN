@@ -5,21 +5,27 @@ import java.util.Scanner;
 
 
 public class Client {
-    public static void main(String[] args) throws IOException {
+    private static Scanner sc= new Scanner(System.in);
+    private static final boolean[] IsMyRound = {false};
+    private static final boolean[] Is9Heart = {false};
+    private static final boolean[] IsEnd = {false};
+    private static DataOutputStream Output;
+    private static DataInputStream Input;
 
-        Scanner sc= new Scanner(System.in);
-        final boolean[] IsMyRound = {false};
-        final boolean[] Is9Heart = {false};
-        final boolean[] IsEnd = {false};
+    private static void init() throws IOException{
         System.setProperty("javax.net.ssl.trustStore","za.store");
         SSLSocketFactory sslSocketFactory =
                 (SSLSocketFactory)SSLSocketFactory.getDefault();
         SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket("localhost", 9000);
         socket.startHandshake();
 
-        DataOutputStream Output = new DataOutputStream(socket.getOutputStream());
-        DataInputStream Input = new DataInputStream(socket.getInputStream());
+        Output = new DataOutputStream(socket.getOutputStream());
+        Input = new DataInputStream(socket.getInputStream());
+    }
 
+    public static void main(String[] args) throws IOException {
+
+        init();
         // sendMessage thread
         Thread sendMessage = new Thread(new Runnable() {
             @Override
@@ -60,10 +66,7 @@ public class Client {
                                             }
                                         break;
                                     case "wait":
-                                        if (Is9Heart[0])
-                                            System.out.println("you must send cards");
-                                        else
-                                            Output.writeUTF(msg);
+                                       caseWait(msg);
                                         break;
                                     default:
                                         System.out.println("invalid message");
@@ -115,7 +118,6 @@ public class Client {
                                 case "we have a looser":
                                     System.exit(0);
                                     IsEnd[0] = true;
-
                                 case "Welcome in PAN game":
                                     System.out.println("You must wait for all players");
                                     break;
@@ -123,13 +125,12 @@ public class Client {
                                     Is9Heart[0] = false;
                                     IsMyRound[0] = false;
                                     break;
-                            }//switch
-                        }//IsEnd
+                            }
+                        }
                         else {
                             return;
                         }
-
-                    }//try
+                    }
                         catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -139,5 +140,11 @@ public class Client {
         sendMessage.start();
         readMessage.start();
 
+    }
+    private static void caseWait( String msg) throws IOException{
+        if (Is9Heart[0])
+            System.out.println("you must send cards");
+        else
+            Output.writeUTF(msg);
     }
 }
